@@ -36,9 +36,13 @@ namespace Moncore.Api
                 config.Database = Configuration.GetSection("MongoConnection:Database").Value;
             });
 
-            services.AddTransient<IAlbumRepository, AlbumRepository>();
-            services.AddTransient<IUserRepository, UserRepository>();
             services.AddTransient<ApplicationContext>();
+            services.AddTransient<IAlbumRepository, AlbumRepository>();
+            services.AddTransient<ICommentRepository, CommentRepository>();
+            services.AddTransient<IPhotoRepository, PhotoRepository>();
+            services.AddTransient<IPostRepository, PostRepository>();
+            services.AddTransient<IToDoRepository, ToDoRepository>();
+            services.AddTransient<IUserRepository, UserRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -10,7 +10,7 @@ using MongoDB.Driver;
 
 namespace Moncore.Data.Repositories
 {
-    internal abstract class Repository<TEntity> : IRepository<TEntity> where TEntity : BaseEntity
+    public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity : BaseEntity
     {
         private readonly IMongoCollection<TEntity> document;
 

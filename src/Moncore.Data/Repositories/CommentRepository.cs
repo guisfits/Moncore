@@ -4,9 +4,9 @@ using Moncore.Domain.Interfaces;
 
 namespace Moncore.Data.Repositories
 {
-    public class AlbumRepository : Repository<Album>, IAlbumRepository
+    public class CommentRepository : Repository<Comment>, ICommentRepository
     {
-        public AlbumRepository(ApplicationContext context) 
+        public CommentRepository(ApplicationContext context) 
             : base(context)
         {
         }
