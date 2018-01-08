@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
-using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.Internal;
 using Moncore.Domain.Entities.Base;
 using Moncore.Domain.Interfaces;
 
