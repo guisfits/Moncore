@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -53,7 +54,13 @@ namespace Moncore.Api
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseMvc();
+            app.UseMvc(route =>
+            {
+                route.MapRoute(
+                    name: "Default",
+                    template: "api/{controller}/{id?}",
+                    defaults: new {controller = "User", action = "Get"});
+            });
         }
     }
 }
