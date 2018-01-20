@@ -1,4 +1,5 @@
-﻿using Moncore.Domain.Entities.Base;
+﻿using System.Collections.Generic;
+using Moncore.Domain.Entities.Base;
 
 namespace Moncore.Domain.Entities
 {

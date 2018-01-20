@@ -9,5 +9,4 @@ namespace Moncore.Domain.Entities
         public string Url { get; set; }
         public string ThumbnailUrl { get; set; }
     }
-
 }

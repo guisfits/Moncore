@@ -20,10 +20,8 @@ namespace Moncore.Data.Helpers
             MapClass<Company>();
             MapClass<Geo>();
             MapClass<Post>();
-            MapClass<Comment>();
             MapClass<Album>();
             MapClass<Photo>();
-            MapClass<ToDo>();
         }
 
         private static void MapClass<T>()

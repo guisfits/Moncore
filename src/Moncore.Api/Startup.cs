@@ -2,10 +2,14 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Moncore.Data.Context;
 using Moncore.Data.Helpers;
 using Moncore.Data.Repositories;
 using Moncore.Domain.Interfaces;
+using AutoMapper;
+using Microsoft.AspNetCore.Http;
+using Moncore.Domain.Interfaces.Repositories;
 
 namespace Moncore.Api
 {
@@ -20,6 +24,7 @@ namespace Moncore.Api
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddAutoMapper();
             services.AddMvc();
 
             MappingElements.Initialize();
@@ -31,27 +36,33 @@ namespace Moncore.Api
 
             services.AddTransient<ApplicationContext>();
             services.AddTransient<IAlbumRepository, AlbumRepository>();
-            services.AddTransient<ICommentRepository, CommentRepository>();
             services.AddTransient<IPhotoRepository, PhotoRepository>();
             services.AddTransient<IPostRepository, PostRepository>();
-            services.AddTransient<IToDoRepository, ToDoRepository>();
             services.AddTransient<IUserRepository, UserRepository>();
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory log)
         {
+            log.AddDebug();
+            log.AddConsole();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
-
-            app.UseMvc(route =>
+            else
             {
-                route.MapRoute(
-                    name: "Default",
-                    template: "api/{controller}/{id?}",
-                    defaults: new {controller = "User", action = "Get"});
-            });
+                app.UseExceptionHandler(appBuilder => 
+                {
+                    appBuilder.Run(async handler => 
+                    {
+                        handler.Response.StatusCode = 500;
+                        await handler.Response.WriteAsync("An Error occurred");
+                    });
+                });
+            }
+
+            app.UseMvc();
         }
     }
 }

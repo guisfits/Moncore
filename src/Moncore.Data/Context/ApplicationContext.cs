@@ -21,9 +21,7 @@ namespace Moncore.Data.Context
 
         public IMongoCollection<User> Users => MongoDb.GetCollection<User>("Users");
         public IMongoCollection<Post> Posts => MongoDb.GetCollection<Post>("Posts");
-        public IMongoCollection<Comment> Comments => MongoDb.GetCollection<Comment>("Comments");
         public IMongoCollection<Album> Albums => MongoDb.GetCollection<Album>("Albums");
         public IMongoCollection<Photo> Photos => MongoDb.GetCollection<Photo>("Photos");
-        public IMongoCollection<ToDo> ToDos => MongoDb.GetCollection<ToDo>("ToDos");
     }
 }

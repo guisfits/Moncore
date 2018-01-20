@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Moncore.Data.Context;
 using Moncore.Domain.Entities.Base;
-using Moncore.Domain.Interfaces;
+using Moncore.Domain.Interfaces.Repositories;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
@@ -12,7 +12,7 @@ namespace Moncore.Data.Repositories
 {
     public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity : BaseEntity
     {
-        private readonly IMongoCollection<TEntity> document;
+        protected readonly IMongoCollection<TEntity> document;
 
         protected Repository(ApplicationContext context)
         {
@@ -21,22 +21,38 @@ namespace Moncore.Data.Repositories
 
         public virtual async Task<ICollection<TEntity>> Get()
         {
-            return await document.Find(c => true).ToListAsync();
+            return await document
+                .Find(c => true)
+                .Sort("{_id: 1}")
+                .ToListAsync();
         }
 
         public virtual async Task<TEntity> Get(int id)
         {
-            return await document.Find(c => c.Id == id).FirstOrDefaultAsync();
+            return await document
+                .Find(c => c.Id == id)
+                .FirstOrDefaultAsync();
         }
 
         public virtual async Task<ICollection<TEntity>> Get(Expression<Func<TEntity, bool>> predicate)
         {
-            return await document.Find(predicate).ToListAsync();
+            return await document
+                .Find(predicate)
+                .Sort("{_id: 1}")
+                .ToListAsync();
         }
 
-        public virtual async Task Add(TEntity obj)
+        public virtual async Task<TEntity> Find(Expression<Func<TEntity, bool>> expression)
         {
-            await document.InsertOneAsync(obj);
+            return await document
+                .Find(expression)
+                .FirstOrDefaultAsync();
+        }
+
+        public virtual async Task<int> Add(TEntity obj)
+        {
+            var result = document.InsertOneAsync(obj);
+            return result.Id;
         }
 
         public virtual async Task AddRange(ICollection<TEntity> objs)
