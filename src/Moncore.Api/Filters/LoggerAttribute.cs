@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Logging;
+using MongoDB.Bson;
 
 namespace Moncore.Api.Filters
 {

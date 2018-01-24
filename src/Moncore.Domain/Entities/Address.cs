@@ -1,4 +1,4 @@
-﻿namespace Moncore.Domain.Entities.UserAggregate
+﻿namespace Moncore.Domain.Entities
 {
     public class Address
     {

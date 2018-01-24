@@ -6,7 +6,6 @@ using Microsoft.Extensions.Logging;
 using Moncore.Data.Context;
 using Moncore.Data.Helpers;
 using Moncore.Data.Repositories;
-using Moncore.Domain.Interfaces;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Moncore.Domain.Interfaces.Repositories;
@@ -35,8 +34,6 @@ namespace Moncore.Api
             });
 
             services.AddTransient<ApplicationContext>();
-            services.AddTransient<IAlbumRepository, AlbumRepository>();
-            services.AddTransient<IPhotoRepository, PhotoRepository>();
             services.AddTransient<IPostRepository, PostRepository>();
             services.AddTransient<IUserRepository, UserRepository>();
         }

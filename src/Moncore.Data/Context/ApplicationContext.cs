@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
 using Moncore.Data.Helpers;
 using Moncore.Domain.Entities;
-using Moncore.Domain.Entities.UserAggregate;
 using MongoDB.Driver;
 
 namespace Moncore.Data.Context
@@ -21,7 +20,5 @@ namespace Moncore.Data.Context
 
         public IMongoCollection<User> Users => MongoDb.GetCollection<User>("Users");
         public IMongoCollection<Post> Posts => MongoDb.GetCollection<Post>("Posts");
-        public IMongoCollection<Album> Albums => MongoDb.GetCollection<Album>("Albums");
-        public IMongoCollection<Photo> Photos => MongoDb.GetCollection<Photo>("Photos");
     }
 }

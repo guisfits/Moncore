@@ -1,7 +1,5 @@
 ﻿using Moncore.CrossCutting.Extensions;
 using Moncore.Domain.Entities;
-using Moncore.Domain.Entities.Base;
-using Moncore.Domain.Entities.UserAggregate;
 using MongoDB.Bson.Serialization;
 
 namespace Moncore.Data.Helpers
@@ -20,8 +18,6 @@ namespace Moncore.Data.Helpers
             MapClass<Company>();
             MapClass<Geo>();
             MapClass<Post>();
-            MapClass<Album>();
-            MapClass<Photo>();
         }
 
         private static void MapClass<T>()

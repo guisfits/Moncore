@@ -1,4 +1,4 @@
-﻿using Moncore.Domain.Entities.UserAggregate;
+﻿using Moncore.Domain.Entities;
 
 namespace Moncore.Domain.Interfaces.Repositories
 {

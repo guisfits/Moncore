@@ -3,17 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27004.2010
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{0AA2FC1E-C230-4CEF-A0FF-1F49B16A97FE}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{4FA9BCF6-AF79-4350-AFB1-2F1122C63FF1}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Moncore.Api", "src\Moncore.Api\Moncore.Api.csproj", "{384FC9F4-A9E9-40A9-A9A9-3612D090FC49}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Moncore.Domain", "src\Moncore.Domain\Moncore.Domain.csproj", "{AD009B01-9597-4710-BC60-98DDBA8CAAB1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Moncore.Data", "src\Moncore.Data\Moncore.Data.csproj", "{3BA9D8AD-3378-4193-974F-85D412B2A673}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Moncore.Data", "src\Moncore.Data\Moncore.Data.csproj", "{3BA9D8AD-3378-4193-974F-85D412B2A673}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Moncore.CrossCutting", "src\Moncore.CrossCutting\Moncore.CrossCutting.csproj", "{ADAC2FD2-D349-4477-BDD0-23232FD8B457}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Moncore.CrossCutting", "src\Moncore.CrossCutting\Moncore.CrossCutting.csproj", "{ADAC2FD2-D349-4477-BDD0-23232FD8B457}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

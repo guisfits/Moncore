@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Moncore.Api.Models;
 using System.Linq;
+using Moncore.Domain.Entities;
 using Moncore.Domain.Interfaces.Repositories;
 
 namespace Moncore.Api.Controllers
@@ -21,19 +23,34 @@ namespace Moncore.Api.Controllers
 
         public async Task<IActionResult> Get()
         {
-            var users = await _repository.Get();
+            var users = await _repository.List();
             var result = Mapper.Map<List<UserDto>>(users);
             return Ok(result.OrderBy(c => c.Id));
         }
 
         [HttpGet("{id}")]
-        public virtual async Task<IActionResult> Get(int id)
+        public async Task<IActionResult> Get(int id)
         {
             var result = await _repository.Get(id);
             if (result == null)
                 return NotFound(null);
 
             return Ok(result);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Create([FromBody] UserForCreatedDto model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest("Dados incorretos");
+
+            var user = Mapper.Map<User>(model);
+            var result = _repository.Add((User) user);
+
+            if (result.Result <= 0)
+                return BadRequest("Não foi possível adicionar um novo usuário");
+
+            return CreatedAtAction("Get", new {id = result.Result}, user);
         }
     }
 }
