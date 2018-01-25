@@ -49,15 +49,18 @@ namespace Moncore.Data.Repositories
                 .FirstOrDefaultAsync();
         }
 
-        public virtual async Task<int> Add(TEntity obj)
+        public virtual async Task Add(TEntity obj)
         {
             obj.Id = Guid.NewGuid().ToString();
-            var result = document.InsertOneAsync(obj);
-            return result.Id;
+            await document.InsertOneAsync(obj);
         }
 
         public virtual async Task Add(ICollection<TEntity> objs)
         {
+            foreach (var obj in objs)
+            {
+                obj.Id = Guid.NewGuid().ToString();
+            }
             await document.InsertManyAsync(objs);
         }
 

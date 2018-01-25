@@ -14,7 +14,7 @@ namespace Moncore.Domain.Interfaces.Repositories
         Task<ICollection<TEntity>> List(Expression<Func<TEntity, bool>> predicate);
 
 
-        Task<int> Add(TEntity obj);
+        Task Add(TEntity obj);
         Task Add(ICollection<TEntity> objs);
         Task<bool> Update(string id, TEntity obj);
         Task<bool> Update(Expression<Func<TEntity, bool>> predicate, TEntity obj);

@@ -28,10 +28,10 @@ namespace Moncore.Api.Controllers
         {
             var users = await _repository.List();
             var result = Mapper.Map<List<UserDto>>(users);
-            return Ok(result.OrderBy(c => c.Id));
+            return Ok(result);
         }
 
-        [HttpGet("{id:Guid}")]
+        [HttpGet("{id:guid}")]
         public async Task<IActionResult> Get(string id)
         {
             var result = await _repository.Get(id);
@@ -48,15 +48,15 @@ namespace Moncore.Api.Controllers
                 return BadRequest("Dados incorretos");
 
             var user = Mapper.Map<User>(model);
-            var result = _repository.Add((User) user);
+            var result = _repository.Add(user);
 
-            if (result.Result <= 0)
+            if (result.IsFaulted)
                 return BadRequest("Não foi possível adicionar um novo usuário");
 
-            return CreatedAtAction("Get", new {id = result.Result}, user);
+            return Created("Get", user);
         }
 
-        [HttpPost]
+        [HttpPost("{id:guid}")]
         public IActionResult Create(string id)
         {
             var user = _repository.Get(id);

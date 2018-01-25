@@ -1,7 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Moncore.Api.MappingProfiles;
+using Moncore.Api.Models;
 using Moncore.Domain.Entities;
 using Moncore.Domain.Interfaces.Repositories;
 
@@ -13,10 +16,12 @@ namespace Moncore.Api.Controllers
     public class PostController : Controller
     {
         private readonly IPostRepository _repository;
+        private readonly IUserRepository _userRepository;
 
-        public PostController(IPostRepository repository) 
+        public PostController(IPostRepository repository, IUserRepository userRepository)
         {
             _repository = repository;
+            _userRepository = userRepository;
         }
 
         [HttpGet]
@@ -42,6 +47,44 @@ namespace Moncore.Api.Controllers
                 return NotFound();
 
             return Ok(await postResult);
+        }
+
+        [HttpPost]
+        public IActionResult Create(string userId, [FromBody] PostForCreatedDto model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest("Dados incorretos");
+
+            var post = Mapper.Map<Post>(model);
+
+            if (!string.IsNullOrEmpty(userId))
+            {
+                var user = _userRepository.Get(userId);
+                if (user == null)
+                    return NotFound();
+
+                post.UserId = userId;
+            }
+
+            if (string.IsNullOrEmpty(post.UserId))
+                return BadRequest("É necessário informar o UserId");
+
+            var result = _repository.Add(post);
+
+            if (result.IsFaulted)
+                return BadRequest("Não foi possível adicionar um novo post");
+
+            return Created("Get", post);
+        }
+
+        [HttpPost("{id:guid}")]
+        public IActionResult Create(string id)
+        {
+            var user = _repository.Get(id);
+            if (user == null)
+                return NotFound();
+
+            return new StatusCodeResult(StatusCodes.Status409Conflict);
         }
 
         [HttpDelete("{id:guid}")]
