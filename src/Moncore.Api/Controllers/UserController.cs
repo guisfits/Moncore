@@ -29,7 +29,7 @@ namespace Moncore.Api.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> Get(int id)
+        public async Task<IActionResult> Get(Guid id)
         {
             var result = await _repository.Get(id);
             if (result == null)
@@ -39,7 +39,7 @@ namespace Moncore.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] UserForCreatedDto model)
+        public IActionResult Create([FromBody] UserForCreatedDto model)
         {
             if (!ModelState.IsValid)
                 return BadRequest("Dados incorretos");
