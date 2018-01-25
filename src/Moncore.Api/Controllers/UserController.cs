@@ -28,8 +28,8 @@ namespace Moncore.Api.Controllers
             return Ok(result.OrderBy(c => c.Id));
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> Get(Guid id)
+        [HttpGet("{id:Guid}")]
+        public async Task<IActionResult> Get(string id)
         {
             var result = await _repository.Get(id);
             if (result == null)

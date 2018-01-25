@@ -20,11 +20,11 @@ namespace Moncore.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get(Guid? userId)
+        public async Task<IActionResult> Get(string userId)
         {
             Task<ICollection<Post>> postsResult;
-            if (userId.HasValue)
-                postsResult = _repository.List(c => c.UserId == userId.Value);
+            if (!string.IsNullOrEmpty(userId))
+                postsResult = _repository.List(c => c.UserId == userId);
             else
                 postsResult = _repository.List();
 
@@ -35,9 +35,9 @@ namespace Moncore.Api.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> Get(Guid? userId, Guid id)
+        public async Task<IActionResult> Get(string userId, string id)
         {
-            var postResult = userId.HasValue ? _repository.Get(c => c.UserId == userId.Value && c.Id == id) : _repository.Get(id);
+            var postResult = !string.IsNullOrEmpty(userId) ? _repository.Get(c => c.UserId == userId && c.Id == id) : _repository.Get(id);
             if (postResult.Result == null)
                 return NotFound();
 

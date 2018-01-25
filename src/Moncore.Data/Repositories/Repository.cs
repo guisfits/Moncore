@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Moncore.Data.Context;
@@ -27,11 +28,10 @@ namespace Moncore.Data.Repositories
                 .ToListAsync();
         }
 
-        public virtual async Task<TEntity> Get(Guid id)
+        public virtual async Task<TEntity> Get(string id)
         {
-            return await document
-                .Find(c => c.Id == id)
-                .FirstOrDefaultAsync();
+            var result = document.Find(entity => entity.Id == id);
+            return await result.FirstOrDefaultAsync();
         }
 
         public virtual async Task<ICollection<TEntity>> List(Expression<Func<TEntity, bool>> predicate)
@@ -51,7 +51,7 @@ namespace Moncore.Data.Repositories
 
         public virtual async Task<int> Add(TEntity obj)
         {
-            obj.Id = Guid.NewGuid();
+            obj.Id = Guid.NewGuid().ToString();
             var result = document.InsertOneAsync(obj);
             return result.Id;
         }
@@ -61,7 +61,7 @@ namespace Moncore.Data.Repositories
             await document.InsertManyAsync(objs);
         }
 
-        public virtual async Task<bool> Update(Guid id, TEntity obj)
+        public virtual async Task<bool> Update(string id, TEntity obj)
         {
             var actionResult = await document.ReplaceOneAsync(n => n.Id.Equals(id), obj, new UpdateOptions { IsUpsert = true });
             return actionResult.IsAcknowledged && actionResult.ModifiedCount > 0;
@@ -74,7 +74,7 @@ namespace Moncore.Data.Repositories
             return result.IsAcknowledged && result.ModifiedCount > 0;
         }
 
-        public virtual async Task<bool> Delete(Guid id)
+        public virtual async Task<bool> Delete(string id)
         {
             var result = await document.DeleteOneAsync(c => c.Id == id);
             return result.IsAcknowledged && result.DeletedCount > 0;
