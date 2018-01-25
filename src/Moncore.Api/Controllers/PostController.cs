@@ -87,6 +87,36 @@ namespace Moncore.Api.Controllers
             return new StatusCodeResult(StatusCodes.Status409Conflict);
         }
 
+        [HttpPut("{id:guid}")]
+        public IActionResult Update(string userId, string id, [FromBody] PostForCreatedDto model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest();
+
+            Task<Post> postTask;
+            if (!string.IsNullOrEmpty(userId))
+            {
+                postTask = _repository.Get(c => c.UserId == userId && c.Id == id);
+                model.UserId = userId;
+            }
+            else
+            {
+                postTask = _repository.Get(id);
+            }
+
+            if (postTask.Result == null) 
+                return NotFound();
+
+            var post = Mapper.Map(model, postTask.Result);
+
+            if (string.IsNullOrEmpty(post.UserId))
+                return BadRequest("O campo UserId é obrigatório");
+
+            _repository.Update(id, post);
+
+            return Ok(post);
+        }
+
         [HttpDelete("{id:guid}")]
         public IActionResult Delete(string userId, string id)
         {

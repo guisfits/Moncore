@@ -65,7 +65,25 @@ namespace Moncore.Api.Controllers
 
             return new StatusCodeResult(StatusCodes.Status409Conflict);
         }
+
+        [HttpPut("{id:guid}")]
+        public IActionResult Update(string id, [FromBody] UserForCreatedDto model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest();
+
+            var user = _repository.Get(id).Result;
+            if (user == null)
+                return NotFound();
+
+            Mapper.Map(model, user);
+
+            _repository.Update(id, user);
+            return Ok(user);
+        }
         
+
+
         [HttpDelete("{id:guid}")]
         public IActionResult Delete(string id)
         {
