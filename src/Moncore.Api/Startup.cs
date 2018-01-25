@@ -24,7 +24,10 @@ namespace Moncore.Api
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddAutoMapper();
-            services.AddMvc();
+            services.AddMvc(setup =>
+            {
+                setup.ReturnHttpNotAcceptable = true;
+            });
 
             MappingElements.Initialize();
             services.Configure<DbSettings>(config =>

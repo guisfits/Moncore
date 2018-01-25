@@ -8,7 +8,7 @@ using Moncore.Domain.Interfaces.Repositories;
 namespace Moncore.Api.Controllers
 {
     [Produces("application/json")]
-    [Route("api/users/{userId}/posts")]
+    [Route("api/users/{userId:guid}/posts")]
     [Route("api/posts")]
     public class PostController : Controller
     {
@@ -34,7 +34,7 @@ namespace Moncore.Api.Controllers
             return Ok(await postsResult);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id:guid}")]
         public async Task<IActionResult> Get(string userId, string id)
         {
             var postResult = !string.IsNullOrEmpty(userId) ? _repository.Get(c => c.UserId == userId && c.Id == id) : _repository.Get(id);
@@ -42,6 +42,22 @@ namespace Moncore.Api.Controllers
                 return NotFound();
 
             return Ok(await postResult);
+        }
+
+        [HttpDelete("{id:guid}")]
+        public IActionResult Delete(string userId, string id)
+        {
+            Task<Post> postResult;
+            if (!string.IsNullOrEmpty(userId))
+                postResult = _repository.Get(c => c.UserId == userId && c.Id == id);
+            else
+                postResult = _repository.Get(id);
+
+            if (postResult == null)
+                return NotFound();
+
+            _repository.Delete(id);
+            return NoContent();
         }
     }
 }
