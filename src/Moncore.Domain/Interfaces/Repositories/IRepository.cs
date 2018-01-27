@@ -13,8 +13,8 @@ namespace Moncore.Domain.Interfaces.Repositories
         Task<TEntity> Get(Expression<Func<TEntity, bool>> predicate);
         Task<ICollection<TEntity>> List();
         Task<ICollection<TEntity>> List(Expression<Func<TEntity, bool>> predicate);
-        PagedList<TEntity> Pagination(int page, int size);
-        PagedList<TEntity> Pagination(int page, int size, Expression<Func<TEntity, bool>> predicate);
+        PagedList<TEntity> Pagination(PaginationParameters parameters);
+        PagedList<TEntity> Pagination(PaginationParameters parameters, Expression<Func<TEntity, bool>> predicate);
 
         Task Add(TEntity obj);
         Task Add(ICollection<TEntity> objs);

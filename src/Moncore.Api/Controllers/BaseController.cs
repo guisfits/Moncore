@@ -1,15 +1,12 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
+﻿using Microsoft.AspNetCore.Mvc;
 using Moncore.Api.Helpers;
+using Moncore.CrossCutting.Helpers;
 using Moncore.Domain.Entities;
 
 namespace Moncore.Api.Controllers
 {
     public abstract class BaseController<TEntity> : Controller where TEntity : Entity
     {
-        protected const int MaxPageSize = 20;
         protected readonly IUrlHelper _urlHelper;
 
         protected BaseController(IUrlHelper urlHelper)
@@ -31,28 +28,28 @@ namespace Moncore.Api.Controllers
             return true;
         }
 
-        protected string CreateResourceUri(int page, int size, ResourceUriType type)
+        protected string CreateResourceUri(PaginationParameters parameters, ResourceUriType type)
         {
-            var actionName = $"Get{typeof(TEntity).Name}";
+            var actionName = $"Get{typeof(TEntity).Name}s";
             switch (type)
             {
                 case ResourceUriType.NextPage:
                     return _urlHelper.Link(actionName, new
                     {
-                        page = page + 1,
-                        size = size
+                        page = parameters.Page + 1,
+                        size = parameters.Size
                     });
                 case ResourceUriType.PreviousPage:
                     return _urlHelper.Link(actionName, new
                     {
-                        page = page - 1,
-                        size = size
+                        page = parameters.Page - 1,
+                        size = parameters.Size
                     });
                 default:
                     return _urlHelper.Link(actionName, new
                     {
-                        page = page,
-                        size = size
+                        page = parameters.Page,
+                        size = parameters.Size
                     });
             }
         }

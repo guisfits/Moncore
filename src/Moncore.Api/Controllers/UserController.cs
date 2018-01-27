@@ -10,6 +10,7 @@ using Moncore.Api.Helpers;
 using Moncore.Domain.Entities;
 using Moncore.Domain.Interfaces.Repositories;
 using Newtonsoft.Json;
+using Moncore.CrossCutting.Helpers;
 
 namespace Moncore.Api.Controllers
 {
@@ -27,21 +28,17 @@ namespace Moncore.Api.Controllers
             _postRepository = postRepository;
         }
 
-        [HttpGet(Name = "GetUser")]
-        public IActionResult Get(int page = 1, int size = 10)
+        [HttpGet(Name = "GetUsers")]
+        public IActionResult Get(PaginationParameters parameters)
         {
-            size = size > MaxPageSize
-                ? MaxPageSize
-                : size;
-
-            var users = _repository.Pagination(page, size);
+            var users = _repository.Pagination(parameters);
 
             string previousPage = users.HasPrevious
-                ? CreateResourceUri(page, size, ResourceUriType.PreviousPage)
+                ? CreateResourceUri(parameters, ResourceUriType.PreviousPage)
                 : null;
 
             string nextPage = users.HasNext
-                ? CreateResourceUri(page, size, ResourceUriType.NextPage)
+                ? CreateResourceUri(parameters, ResourceUriType.NextPage)
                 : null;
 
             var result = Mapper.Map<List<UserDto>>(users);

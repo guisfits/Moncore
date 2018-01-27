@@ -6,14 +6,14 @@ using Microsoft.AspNetCore.Mvc;
 using Moncore.Api.Filters;
 using Moncore.Api.Helpers;
 using Moncore.Api.Models;
+using Moncore.CrossCutting.Helpers;
 using Moncore.Domain.Entities;
 using Moncore.Domain.Interfaces.Repositories;
+using Newtonsoft.Json;
 
 namespace Moncore.Api.Controllers
 {
     [Produces("application/json")]
-    [Route("api/users/{userId:guid}/posts")]
-    [Route("api/posts")]
     public class PostController : BaseController<Post>
     {
         private readonly IPostRepository _repository;
@@ -27,19 +27,70 @@ namespace Moncore.Api.Controllers
         }
 
         [HttpGet]
-        public IActionResult Get(int page, int size, string userId)
+        [Route("api/posts", Name = "GetPosts")]
+        public IActionResult Get(PaginationParameters parameters)
         {
-            var postsResult = !string.IsNullOrEmpty(userId) 
-                ? _repository.List(c => c.UserId == userId) 
-                : _repository.List();
+            var posts = _repository.Pagination(parameters);
 
-            if (postsResult.Result == null)
+            if (posts == null)
                 return NotFound();
 
-            return Ok(postsResult);
+            string previousPage = posts.HasPrevious
+                ? CreateResourceUri(parameters, ResourceUriType.PreviousPage)
+                : null;
+
+            string nextPage = posts.HasNext
+                ? CreateResourceUri(parameters, ResourceUriType.NextPage)
+                : null;
+
+            var paginationMetadata = new
+            {
+                totalCount = posts.TotalCount,
+                pageSize = posts.PageSize,
+                currentPage = posts.CurrentPage,
+                totalPages = posts.TotalPages,
+                previousPageLink = previousPage,
+                nextPageLink = nextPage
+            };
+
+            Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(paginationMetadata));
+            return Ok(posts);
         }
 
-        [HttpGet("{id:guid}")]
+        [HttpGet]
+        [Route("api/users/{userId:guid}/posts", Name = "GetPostsByUser")]
+        public IActionResult Get(string userId, PaginationParameters parameters)
+        {
+            var posts = _repository.Pagination(parameters, c => c.UserId == userId);
+
+            if (posts == null)
+                return NotFound();
+
+            string previousPage = posts.HasPrevious
+                ? CreateResourceUriForPostByUserId(parameters, ResourceUriType.PreviousPage, userId)
+                : null;
+
+            string nextPage = posts.HasNext
+                ? CreateResourceUriForPostByUserId(parameters, ResourceUriType.NextPage, userId)
+                : null;
+
+            var paginationMetadata = new
+            {
+                totalCount = posts.TotalCount,
+                pageSize = posts.PageSize,
+                currentPage = posts.CurrentPage,
+                totalPages = posts.TotalPages,
+                previousPageLink = previousPage,
+                nextPageLink = nextPage
+            };
+
+            Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(paginationMetadata));
+            return Ok(posts);
+        }
+
+        [HttpGet]
+        [Route("api/posts/{id:guid}")]
+        [Route("api/users/{userId:guid}/posts/{id:guid}")]
         public async Task<IActionResult> Get(string userId, string id)
         {
             var postResult = !string.IsNullOrEmpty(userId) 
@@ -54,6 +105,8 @@ namespace Moncore.Api.Controllers
 
         [ValidateModelState]
         [HttpPost]
+        [Route("api/posts")]
+        [Route("api/users/{userId:guid}/posts")]
         public IActionResult Create(string userId, [FromBody] PostForCreatedDto model)
         {
             var post = Mapper.Map<Post>(model);
@@ -77,7 +130,9 @@ namespace Moncore.Api.Controllers
                 : Created("Get", post);
         }
 
-        [HttpPost("{id:guid}")]
+        [HttpPost]
+        [Route("api/posts/{id:guid}")]
+        [Route("api/users/{userId:guid}/posts/{id:guid}")]
         public IActionResult CreateForErrorInput(string id)
         {
             var user = _repository.Get(id);
@@ -88,7 +143,9 @@ namespace Moncore.Api.Controllers
         }
 
         [ValidateModelState]
-        [HttpPut("{id:guid}")]
+        [HttpPut]
+        [Route("api/posts/{id:guid}")]
+        [Route("api/users/{userId:guid}/posts/{id:guid}")]
         public IActionResult Update(string userId, string id, [FromBody] PostForCreatedDto model)
         {
             Task<Post> postTask;
@@ -118,7 +175,9 @@ namespace Moncore.Api.Controllers
         }
 
         [ValidateModelState]
-        [HttpPatch("{id:guid}")]
+        [HttpPatch]
+        [Route("api/posts/{id:guid}")]
+        [Route("api/users/{userId:guid}/posts/{id:guid}")]
         public IActionResult Patch(string userId, string id, [FromBody] JsonPatchDocument<PostForCreatedDto> model)
         {
             var postDb = _repository.Get(id).Result;
@@ -141,7 +200,9 @@ namespace Moncore.Api.Controllers
                 : Ok(postDb);
         }
 
-        [HttpDelete("{id:guid}")]
+        [HttpDelete]
+        [Route("api/posts/{id:guid}")]
+        [Route("api/users/{userId:guid}/posts/{id:guid}")]
         public IActionResult Delete(string userId, string id)
         {
             var post = !string.IsNullOrEmpty(userId) 
@@ -154,5 +215,38 @@ namespace Moncore.Api.Controllers
             _repository.Delete(id);
             return NoContent();
         }
+
+        #region Helpers
+
+        protected string CreateResourceUriForPostByUserId(PaginationParameters parameters, ResourceUriType type, string userId)
+        {
+            var actionName = "GetPostsByUser";
+            switch (type)
+            {
+                case ResourceUriType.NextPage:
+                    return _urlHelper.Link(actionName, new
+                    {
+                        userId = userId,
+                        page = parameters.Page + 1,
+                        size = parameters.Size
+                    });
+                case ResourceUriType.PreviousPage:
+                    return _urlHelper.Link(actionName, new
+                    {
+                        userId = userId,
+                        page = parameters.Page - 1,
+                        size = parameters.Size
+                    });
+                default:
+                    return _urlHelper.Link(actionName, new
+                    {
+                        userId = userId,
+                        page = parameters.Page,
+                        size = parameters.Size
+                    });
+            }
+        }
+
+        #endregion
     }
 }

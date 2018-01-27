@@ -49,23 +49,23 @@ namespace Moncore.Data.Repositories
                 .ToListAsync();
         }
 
-        public PagedList<TEntity> Pagination(int page, int size)
+        public PagedList<TEntity> Pagination(PaginationParameters parameters)
         {
             var result = document
                 .AsQueryable()
                 .OrderBy(c => c.Id);
 
-            return PagedList<TEntity>.Create(result, page, size);
+            return PagedList<TEntity>.Create(result, parameters.Page, parameters.Size);
         }
 
-        public PagedList<TEntity> Pagination(int page, int size, Expression<Func<TEntity, bool>> predicate)
+        public PagedList<TEntity> Pagination(PaginationParameters parameters, Expression<Func<TEntity, bool>> predicate)
         {
             var result = document
                 .AsQueryable()
                 .Where(predicate)
                 .OrderBy(c => c.Id);
 
-            return PagedList<TEntity>.Create(result, page, size);
+            return PagedList<TEntity>.Create(result, parameters.Page, parameters.Size);
         }
 
         public virtual async Task Add(TEntity obj)
