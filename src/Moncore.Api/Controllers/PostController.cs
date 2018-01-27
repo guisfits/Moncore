@@ -19,14 +19,15 @@ namespace Moncore.Api.Controllers
         private readonly IPostRepository _repository;
         private readonly IUserRepository _userRepository;
 
-        public PostController(IPostRepository repository, IUserRepository userRepository)
+        public PostController(IPostRepository repository, IUserRepository userRepository, IUrlHelper urlHelper)
+            :base(urlHelper)
         {
             _repository = repository;
             _userRepository = userRepository;
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get(string userId)
+        public IActionResult Get(int page, int size, string userId)
         {
             var postsResult = !string.IsNullOrEmpty(userId) 
                 ? _repository.List(c => c.UserId == userId) 
@@ -35,7 +36,7 @@ namespace Moncore.Api.Controllers
             if (postsResult.Result == null)
                 return NotFound();
 
-            return Ok(await postsResult);
+            return Ok(postsResult);
         }
 
         [HttpGet("{id:guid}")]

@@ -1,4 +1,4 @@
-﻿namespace Moncore.Domain.Entities
+﻿namespace Moncore.Domain.ValueObjects
 {
     public class Company
     {

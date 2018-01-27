@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using Moncore.CrossCutting.Helpers;
 using Moncore.Data.Context;
 using Moncore.Domain.Entities;
 using Moncore.Domain.Interfaces.Repositories;
@@ -19,6 +20,18 @@ namespace Moncore.Data.Repositories
         {
             document = context.MongoDb.GetCollection<TEntity>(typeof(TEntity).Name + "s");
         }
+        public virtual async Task<TEntity> Get(string id)
+        {
+            var result = document.Find(entity => entity.Id == id);
+            return await result.FirstOrDefaultAsync();
+        }
+
+        public virtual async Task<TEntity> Get(Expression<Func<TEntity, bool>> expression)
+        {
+            return await document
+                .Find(expression)
+                .FirstOrDefaultAsync();
+        }
 
         public virtual async Task<ICollection<TEntity>> List()
         {
@@ -26,12 +39,6 @@ namespace Moncore.Data.Repositories
                 .Find(c => true)
                 .Sort("{_id: 1}")
                 .ToListAsync();
-        }
-
-        public virtual async Task<TEntity> Get(string id)
-        {
-            var result = document.Find(entity => entity.Id == id);
-            return await result.FirstOrDefaultAsync();
         }
 
         public virtual async Task<ICollection<TEntity>> List(Expression<Func<TEntity, bool>> predicate)
@@ -42,11 +49,23 @@ namespace Moncore.Data.Repositories
                 .ToListAsync();
         }
 
-        public virtual async Task<TEntity> Get(Expression<Func<TEntity, bool>> expression)
+        public PagedList<TEntity> Pagination(int page, int size)
         {
-            return await document
-                .Find(expression)
-                .FirstOrDefaultAsync();
+            var result = document
+                .AsQueryable()
+                .OrderBy(c => c.Id);
+
+            return PagedList<TEntity>.Create(result, page, size);
+        }
+
+        public PagedList<TEntity> Pagination(int page, int size, Expression<Func<TEntity, bool>> predicate)
+        {
+            var result = document
+                .AsQueryable()
+                .Where(predicate)
+                .OrderBy(c => c.Id);
+
+            return PagedList<TEntity>.Create(result, page, size);
         }
 
         public virtual async Task Add(TEntity obj)

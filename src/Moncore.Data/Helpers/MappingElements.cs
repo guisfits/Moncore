@@ -1,5 +1,6 @@
 ﻿using Moncore.CrossCutting.Extensions;
 using Moncore.Domain.Entities;
+using Moncore.Domain.ValueObjects;
 using MongoDB.Bson.Serialization;
 
 namespace Moncore.Data.Helpers

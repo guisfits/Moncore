@@ -10,6 +10,9 @@ using AutoMapper;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Moncore.Domain.Entities;
 using Moncore.Domain.Interfaces.Repositories;
 using Moncore.Domain.Validations;
@@ -41,11 +44,23 @@ namespace Moncore.Api
                 config.Database = Configuration.GetSection("MongoConnection:Database").Value;
             });
 
-            services.AddTransient<ApplicationContext>();
-            services.AddTransient<IPostRepository, PostRepository>();
-            services.AddTransient<IUserRepository, UserRepository>();
-            services.AddTransient<IValidator<User>, UserValidator>();
-            services.AddTransient<IValidator<Post>, PostValidator>();
+            #region IoC
+
+            services.AddScoped<ApplicationContext>();
+            services.AddScoped<IPostRepository, PostRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
+
+            services.AddScoped<IValidator<User>, UserValidator>();
+            services.AddScoped<IValidator<Post>, PostValidator>();
+
+            services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
+            services.AddScoped<IUrlHelper, UrlHelper>(config =>
+            {
+                var actionContext = config.GetService<IActionContextAccessor>().ActionContext;
+                return new UrlHelper(actionContext);
+            });
+
+            #endregion
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory log)

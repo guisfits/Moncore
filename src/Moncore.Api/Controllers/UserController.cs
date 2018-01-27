@@ -9,6 +9,7 @@ using Moncore.Api.Filters;
 using Moncore.Api.Helpers;
 using Moncore.Domain.Entities;
 using Moncore.Domain.Interfaces.Repositories;
+using Newtonsoft.Json;
 
 namespace Moncore.Api.Controllers
 {
@@ -19,17 +20,43 @@ namespace Moncore.Api.Controllers
         private readonly IUserRepository _repository;
         private readonly IPostRepository _postRepository;
 
-        public UserController(IUserRepository repository, IPostRepository postRepository)
+        public UserController(IUserRepository repository, IPostRepository postRepository, IUrlHelper urlHelper) 
+            : base(urlHelper)
         {
             _repository = repository;
             _postRepository = postRepository;
         }
 
-        public async Task<IActionResult> Get()
+        [HttpGet(Name = "GetUser")]
+        public IActionResult Get(int page = 1, int size = 10)
         {
-            var users = await _repository.List();
+            size = size > MaxPageSize
+                ? MaxPageSize
+                : size;
+
+            var users = _repository.Pagination(page, size);
+
+            string previousPage = users.HasPrevious
+                ? CreateResourceUri(page, size, ResourceUriType.PreviousPage)
+                : null;
+
+            string nextPage = users.HasNext
+                ? CreateResourceUri(page, size, ResourceUriType.NextPage)
+                : null;
+
             var result = Mapper.Map<List<UserDto>>(users);
 
+            var paginationMetadata = new
+            {
+                totalCount = users.TotalCount,
+                pageSize = users.PageSize,
+                currentPage = users.CurrentPage,
+                totalPages = users.TotalPages,
+                previousPageLink = previousPage,
+                nextPageLink = nextPage
+            };
+
+            Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(paginationMetadata));
             return Ok(result);
         }
 

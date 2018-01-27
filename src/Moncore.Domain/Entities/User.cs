@@ -1,5 +1,6 @@
 ﻿using FluentValidation.Results;
 using Moncore.Domain.Validations;
+using Moncore.Domain.ValueObjects;
 
 namespace Moncore.Domain.Entities
 {
