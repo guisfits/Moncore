@@ -1,9 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
-using Moncore.Api.MappingProfiles;
+using Moncore.Api.Filters;
+using Moncore.Api.Helpers;
 using Moncore.Api.Models;
 using Moncore.Domain.Entities;
 using Moncore.Domain.Interfaces.Repositories;
@@ -13,7 +14,7 @@ namespace Moncore.Api.Controllers
     [Produces("application/json")]
     [Route("api/users/{userId:guid}/posts")]
     [Route("api/posts")]
-    public class PostController : Controller
+    public class PostController : BaseController<Post>
     {
         private readonly IPostRepository _repository;
         private readonly IUserRepository _userRepository;
@@ -27,11 +28,9 @@ namespace Moncore.Api.Controllers
         [HttpGet]
         public async Task<IActionResult> Get(string userId)
         {
-            Task<ICollection<Post>> postsResult;
-            if (!string.IsNullOrEmpty(userId))
-                postsResult = _repository.List(c => c.UserId == userId);
-            else
-                postsResult = _repository.List();
+            var postsResult = !string.IsNullOrEmpty(userId) 
+                ? _repository.List(c => c.UserId == userId) 
+                : _repository.List();
 
             if (postsResult.Result == null)
                 return NotFound();
@@ -42,19 +41,20 @@ namespace Moncore.Api.Controllers
         [HttpGet("{id:guid}")]
         public async Task<IActionResult> Get(string userId, string id)
         {
-            var postResult = !string.IsNullOrEmpty(userId) ? _repository.Get(c => c.UserId == userId && c.Id == id) : _repository.Get(id);
+            var postResult = !string.IsNullOrEmpty(userId) 
+                ? _repository.Get(c => c.UserId == userId && c.Id == id) 
+                : _repository.Get(id);
+
             if (postResult.Result == null)
                 return NotFound();
 
             return Ok(await postResult);
         }
 
+        [ValidateModelState]
         [HttpPost]
         public IActionResult Create(string userId, [FromBody] PostForCreatedDto model)
         {
-            if (!ModelState.IsValid)
-                return BadRequest("Dados incorretos");
-
             var post = Mapper.Map<Post>(model);
 
             if (!string.IsNullOrEmpty(userId))
@@ -66,33 +66,30 @@ namespace Moncore.Api.Controllers
                 post.UserId = userId;
             }
 
-            if (string.IsNullOrEmpty(post.UserId))
-                return BadRequest("É necessário informar o UserId");
+            if(!ValidateEntity(post))
+                return new UnprocessableEntityResult(ModelState);
 
             var result = _repository.Add(post);
 
-            if (result.IsFaulted)
-                return BadRequest("Não foi possível adicionar um novo post");
-
-            return Created("Get", post);
+            return result.IsFaulted
+                ? (IActionResult) new StatusCodeResult(StatusCodes.Status501NotImplemented)
+                : Created("Get", post);
         }
 
         [HttpPost("{id:guid}")]
-        public IActionResult Create(string id)
+        public IActionResult CreateForErrorInput(string id)
         {
             var user = _repository.Get(id);
-            if (user == null)
-                return NotFound();
 
-            return new StatusCodeResult(StatusCodes.Status409Conflict);
+            return user == null 
+                ? NotFound()
+                : new StatusCodeResult(StatusCodes.Status409Conflict);
         }
 
+        [ValidateModelState]
         [HttpPut("{id:guid}")]
         public IActionResult Update(string userId, string id, [FromBody] PostForCreatedDto model)
         {
-            if (!ModelState.IsValid)
-                return BadRequest();
-
             Task<Post> postTask;
             if (!string.IsNullOrEmpty(userId))
             {
@@ -109,24 +106,48 @@ namespace Moncore.Api.Controllers
 
             var post = Mapper.Map(model, postTask.Result);
 
-            if (string.IsNullOrEmpty(post.UserId))
-                return BadRequest("O campo UserId é obrigatório");
+            if (!ValidateEntity(post))
+                return new UnprocessableEntityResult(ModelState);
 
-            _repository.Update(id, post);
+            var result = _repository.Update(id, post);
 
-            return Ok(post);
+            return result.IsFaulted
+                ? (IActionResult) new StatusCodeResult(StatusCodes.Status501NotImplemented) 
+                : Ok(post);
+        }
+
+        [ValidateModelState]
+        [HttpPatch("{id:guid}")]
+        public IActionResult Patch(string userId, string id, [FromBody] JsonPatchDocument<PostForCreatedDto> model)
+        {
+            var postDb = _repository.Get(id).Result;
+            if (postDb == null)
+                return NotFound();
+
+            var postPatch = Mapper.Map<PostForCreatedDto>(postDb);
+            model.ApplyTo(postPatch, ModelState);
+            TryValidateModel(postPatch);
+            Mapper.Map(postPatch, postDb);
+
+            var validateResult = ValidateEntity(postDb);
+            if (!ModelState.IsValid || !validateResult)
+                return new UnprocessableEntityResult(ModelState);
+
+            var result = _repository.Update(id, postDb);
+
+            return result.IsFaulted
+                ? (IActionResult) new StatusCodeResult(StatusCodes.Status501NotImplemented)
+                : Ok(postDb);
         }
 
         [HttpDelete("{id:guid}")]
         public IActionResult Delete(string userId, string id)
         {
-            Task<Post> postResult;
-            if (!string.IsNullOrEmpty(userId))
-                postResult = _repository.Get(c => c.UserId == userId && c.Id == id);
-            else
-                postResult = _repository.Get(id);
+            var post = !string.IsNullOrEmpty(userId) 
+                ? _repository.Get(c => c.UserId == userId && c.Id == id) 
+                : _repository.Get(id);
 
-            if (postResult == null)
+            if (post == null)
                 return NotFound();
 
             _repository.Delete(id);

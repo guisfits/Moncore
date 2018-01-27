@@ -1,11 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Moncore.Api.Models;
-using System.Linq;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.JsonPatch;
+using Moncore.Api.Filters;
+using Moncore.Api.Helpers;
 using Moncore.Domain.Entities;
 using Moncore.Domain.Interfaces.Repositories;
 
@@ -13,7 +14,7 @@ namespace Moncore.Api.Controllers
 {
     [Produces("application/json")]
     [Route("api/users")]
-    public class UserController : Controller
+    public class UserController : BaseController<User>
     {
         private readonly IUserRepository _repository;
         private readonly IPostRepository _postRepository;
@@ -21,68 +22,93 @@ namespace Moncore.Api.Controllers
         public UserController(IUserRepository repository, IPostRepository postRepository)
         {
             _repository = repository;
-            this._postRepository = postRepository;
+            _postRepository = postRepository;
         }
 
         public async Task<IActionResult> Get()
         {
             var users = await _repository.List();
             var result = Mapper.Map<List<UserDto>>(users);
+
             return Ok(result);
         }
 
         [HttpGet("{id:guid}")]
         public async Task<IActionResult> Get(string id)
         {
-            var result = await _repository.Get(id);
-            if (result == null)
-                return NotFound(null);
+            var user = await _repository.Get(id);
 
-            return Ok(result);
+            return user == null 
+                ? (IActionResult) NotFound() 
+                : Ok(user);
         }
 
+        [ValidateModelState]
         [HttpPost]
         public IActionResult Create([FromBody] UserForCreatedDto model)
         {
-            if (!ModelState.IsValid)
-                return BadRequest("Dados incorretos");
-
             var user = Mapper.Map<User>(model);
+            if (!ValidateEntity(user))
+                return new UnprocessableEntityResult(ModelState);
+
             var result = _repository.Add(user);
 
-            if (result.IsFaulted)
-                return BadRequest("Não foi possível adicionar um novo usuário");
-
-            return Created("Get", user);
+            return result.IsFaulted
+                ? (IActionResult) new StatusCodeResult(StatusCodes.Status501NotImplemented)
+                : Created("Get", user);
         }
 
         [HttpPost("{id:guid}")]
-        public IActionResult Create(string id)
+        public IActionResult CreateForInvalidInput(string id)
         {
             var user = _repository.Get(id);
-            if (user == null)
-                return NotFound();
 
-            return new StatusCodeResult(StatusCodes.Status409Conflict);
+            return user == null 
+                ? NotFound()
+                : new StatusCodeResult(StatusCodes.Status409Conflict);
         }
 
+        [ValidateModelState]
         [HttpPut("{id:guid}")]
         public IActionResult Update(string id, [FromBody] UserForCreatedDto model)
         {
-            if (!ModelState.IsValid)
-                return BadRequest();
-
             var user = _repository.Get(id).Result;
             if (user == null)
                 return NotFound();
 
             Mapper.Map(model, user);
+            if (!ValidateEntity(user))
+                return new UnprocessableEntityResult(ModelState);
 
-            _repository.Update(id, user);
-            return Ok(user);
+            var result = _repository.Update(id, user);
+
+            return result.Result
+                ? (IActionResult) Ok(user)
+                : new StatusCodeResult(StatusCodes.Status501NotImplemented);
         }
-        
 
+        [ValidateModelState]
+        [HttpPatch("{id:guid}")]
+        public IActionResult Patch(string id, [FromBody] JsonPatchDocument<UserForCreatedDto> model)
+        {
+            var userDb = _repository.Get(id).Result;
+            if (userDb == null)
+                return NotFound();
+
+            var userForPatch = Mapper.Map<UserForCreatedDto>(userDb);
+            model.ApplyTo(userForPatch, ModelState);
+            Mapper.Map(userForPatch, userDb);
+
+            var validationResult = ValidateEntity(userDb);
+            if (!ModelState.IsValid || !validationResult)
+                return new UnprocessableEntityResult(ModelState);
+
+            var result = _repository.Update(id, userDb);
+
+            return result.Result
+                ? (IActionResult)Ok(userDb)
+                : new StatusCodeResult(StatusCodes.Status501NotImplemented);
+        }
 
         [HttpDelete("{id:guid}")]
         public IActionResult Delete(string id)
@@ -96,9 +122,8 @@ namespace Moncore.Api.Controllers
 
             var posts = _postRepository.List(c => c.UserId == id).Result;
             foreach (var post in posts)
-            {
                 _postRepository.Delete(post.Id);
-            }
+
             return NoContent();
         }
     }

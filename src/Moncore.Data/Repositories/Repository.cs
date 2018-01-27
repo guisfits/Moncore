@@ -11,7 +11,7 @@ using MongoDB.Driver;
 
 namespace Moncore.Data.Repositories
 {
-    public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity : BaseEntity
+    public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity : Entity
     {
         protected readonly IMongoCollection<TEntity> document;
 

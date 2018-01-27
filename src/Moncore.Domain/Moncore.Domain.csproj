@@ -8,4 +8,8 @@
     <ProjectReference Include="..\Moncore.CrossCutting\Moncore.CrossCutting.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="FluentValidation" Version="7.4.0" />
+  </ItemGroup>
+
 </Project>

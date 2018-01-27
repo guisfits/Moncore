@@ -1,6 +1,9 @@
-﻿namespace Moncore.Domain.Entities
+﻿using FluentValidation.Results;
+using Moncore.Domain.Validations;
+
+namespace Moncore.Domain.Entities
 {
-    public class User : BaseEntity
+    public class User : Entity
     {
         public string Name { get; set; }
         public string Username { get; set; }
@@ -9,5 +12,11 @@
         public string Phone { get; set; }
         public string Website { get; set; }
         public Company Company { get; set; }
+
+        public override ValidationResult Validate()
+        {
+            var validation = new UserValidator();
+            return validation.Validate(this);
+        }
     }
 }

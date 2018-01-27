@@ -7,8 +7,12 @@ using Moncore.Data.Context;
 using Moncore.Data.Helpers;
 using Moncore.Data.Repositories;
 using AutoMapper;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Http;
+using Moncore.Domain.Entities;
 using Moncore.Domain.Interfaces.Repositories;
+using Moncore.Domain.Validations;
 
 namespace Moncore.Api
 {
@@ -27,7 +31,8 @@ namespace Moncore.Api
             services.AddMvc(setup =>
             {
                 setup.ReturnHttpNotAcceptable = true;
-            });
+            })
+            .AddFluentValidation();
 
             MappingElements.Initialize();
             services.Configure<DbSettings>(config =>
@@ -39,12 +44,14 @@ namespace Moncore.Api
             services.AddTransient<ApplicationContext>();
             services.AddTransient<IPostRepository, PostRepository>();
             services.AddTransient<IUserRepository, UserRepository>();
+            services.AddTransient<IValidator<User>, UserValidator>();
+            services.AddTransient<IValidator<Post>, PostValidator>();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory log)
         {
-            log.AddDebug();
             log.AddConsole();
+            log.AddDebug(LogLevel.Warning);
 
             if (env.IsDevelopment())
             {

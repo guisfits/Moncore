@@ -8,7 +8,7 @@ namespace Moncore.Data.Helpers
     {
         public static void Initialize()
         {
-            BsonClassMap.RegisterClassMap<BaseEntity>(map =>
+            BsonClassMap.RegisterClassMap<Entity>(map =>
             {
                 map.MapMember(c => c.Id).SetElementName("_id");
             });

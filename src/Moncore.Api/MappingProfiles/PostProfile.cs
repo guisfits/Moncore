@@ -9,7 +9,6 @@ namespace Moncore.Api.MappingProfiles
         public PostProfile()
         {
             CreateMap<PostForCreatedDto, Post>();
-            CreateMap<PostForCreatedByUserDto, Post>();
         }
     }
 }

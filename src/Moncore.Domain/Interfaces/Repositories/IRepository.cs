@@ -6,7 +6,7 @@ using Moncore.Domain.Entities;
 
 namespace Moncore.Domain.Interfaces.Repositories
 {
-    public interface IRepository<TEntity> where TEntity : BaseEntity
+    public interface IRepository<TEntity> where TEntity : Entity
     {
         Task<TEntity> Get(string id);
         Task<TEntity> Get(Expression<Func<TEntity, bool>> predicate);
