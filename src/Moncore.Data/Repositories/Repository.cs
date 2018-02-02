@@ -51,9 +51,8 @@ namespace Moncore.Data.Repositories
 
         public PagedList<TEntity> Pagination(PaginationParameters parameters)
         {
-            var result = document
-                .AsQueryable()
-                .OrderBy(c => c.Id);
+            IQueryable<TEntity> docQuery = document.AsQueryable();
+            var result = SearchByParameters(docQuery, parameters).OrderBy(c => c.Id);
 
             return PagedList<TEntity>.Create(result, parameters.Page, parameters.Size);
         }
@@ -107,5 +106,7 @@ namespace Moncore.Data.Repositories
             var result = await document.DeleteManyAsync(predicate);
             return result.IsAcknowledged && result.DeletedCount > 0;
         }
+
+        protected abstract IQueryable<TEntity> SearchByParameters(IQueryable<TEntity> objs, PaginationParameters parameters);
     }
 }

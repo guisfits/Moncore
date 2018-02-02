@@ -1,4 +1,7 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
@@ -28,11 +31,11 @@ namespace Moncore.Api.Controllers
 
         [HttpGet]
         [Route("api/posts", Name = "GetPosts")]
-        public IActionResult Get(PaginationParameters parameters)
+        public IActionResult Get(PaginationParametersFiltersForPost parameters)
         {
             var posts = _repository.Pagination(parameters);
 
-            if (posts == null)
+            if (posts == null || !posts.Any())
                 return NotFound();
 
             string previousPage = posts.HasPrevious
@@ -57,6 +60,8 @@ namespace Moncore.Api.Controllers
             return Ok(posts);
         }
 
+        
+
         [HttpGet]
         [Route("api/users/{userId:guid}/posts", Name = "GetPostsByUser")]
         public IActionResult Get(string userId, PaginationParameters parameters)
@@ -67,11 +72,11 @@ namespace Moncore.Api.Controllers
                 return NotFound();
 
             string previousPage = posts.HasPrevious
-                ? CreateResourceUriForPostByUserId(parameters, ResourceUriType.PreviousPage, userId)
+                ? CreateResourceUri(parameters, ResourceUriType.PreviousPage, userId)
                 : null;
 
             string nextPage = posts.HasNext
-                ? CreateResourceUriForPostByUserId(parameters, ResourceUriType.NextPage, userId)
+                ? CreateResourceUri(parameters, ResourceUriType.NextPage, userId)
                 : null;
 
             var paginationMetadata = new
@@ -93,7 +98,7 @@ namespace Moncore.Api.Controllers
         [Route("api/users/{userId:guid}/posts/{id:guid}")]
         public async Task<IActionResult> Get(string userId, string id)
         {
-            var postResult = !string.IsNullOrEmpty(userId) 
+            var postResult = !userId.IsNullEmptyOrWhiteSpace()
                 ? _repository.Get(c => c.UserId == userId && c.Id == id) 
                 : _repository.Get(id);
 
@@ -111,7 +116,7 @@ namespace Moncore.Api.Controllers
         {
             var post = Mapper.Map<Post>(model);
 
-            if (!string.IsNullOrEmpty(userId))
+            if (!userId.IsNullEmptyOrWhiteSpace())
             {
                 var user = _userRepository.Get(userId);
                 if (user == null)
@@ -149,7 +154,7 @@ namespace Moncore.Api.Controllers
         public IActionResult Update(string userId, string id, [FromBody] PostForCreatedDto model)
         {
             Task<Post> postTask;
-            if (!string.IsNullOrEmpty(userId))
+            if (!userId.IsNullEmptyOrWhiteSpace())
             {
                 postTask = _repository.Get(c => c.UserId == userId && c.Id == id);
                 model.UserId = userId;
@@ -205,7 +210,7 @@ namespace Moncore.Api.Controllers
         [Route("api/users/{userId:guid}/posts/{id:guid}")]
         public IActionResult Delete(string userId, string id)
         {
-            var post = !string.IsNullOrEmpty(userId) 
+            var post = !userId.IsNullEmptyOrWhiteSpace()
                 ? _repository.Get(c => c.UserId == userId && c.Id == id) 
                 : _repository.Get(id);
 
@@ -218,7 +223,7 @@ namespace Moncore.Api.Controllers
 
         #region Helpers
 
-        protected string CreateResourceUriForPostByUserId(PaginationParameters parameters, ResourceUriType type, string userId)
+        private string CreateResourceUri(PaginationParameters parameters, ResourceUriType type, string userId)
         {
             var actionName = "GetPostsByUser";
             switch (type)
