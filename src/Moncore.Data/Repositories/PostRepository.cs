@@ -25,15 +25,21 @@ namespace Moncore.Data.Repositories
             if(predicate != null)
                 result = result.Where(predicate);
 
-            FilterQuery(parameters, ref result);
+            FilterAndSearchQuery(parameters, ref result);
 
             result.OrderBy(c => c.Id);
 
             return PagedList<Post>.Create(result, parameters.Page, parameters.Size);
         }
 
-        public void FilterQuery(PostParameters parameters, ref IQueryable<Post> result)
+        public void FilterAndSearchQuery(PostParameters parameters, ref IQueryable<Post> result)
         {
+            if(!parameters.Search.IsNullEmptyOrWhiteSpace()){
+                result = result.Where(user => 
+                    user.Title.Contains(parameters.Search) ||
+                    user.Body.Contains(parameters.Search));
+            }
+
             if(!parameters.Title.IsNullEmptyOrWhiteSpace())
                 result = result.Where(Post => Post.Title == parameters.Title).AsQueryable();
 
