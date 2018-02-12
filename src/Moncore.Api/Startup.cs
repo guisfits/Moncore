@@ -13,7 +13,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Routing;
-using Moncore.Api.Interfaces;
 using Moncore.Domain.Entities;
 using Moncore.Domain.Interfaces.Repositories;
 using Moncore.Domain.Validations;
@@ -60,8 +59,6 @@ namespace Moncore.Api
                 var actionContext = config.GetService<IActionContextAccessor>().ActionContext;
                 return new UrlHelper(actionContext);
             });
-
-            services.AddTransient<IPropertyMappingService, IPropertyMappingService>();
 
             #endregion
         }

@@ -1,8 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
+
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <UserSecretsId>ee69f504-3f45-479d-8600-90bcb1ea3c71</UserSecretsId>
   </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="6.2.2" />
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="3.2.0" />
@@ -10,14 +12,16 @@
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.3" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="2.0.0" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.0.0" />
-    <PackageReference Include="System.Linq.Dynamic.Core" Version="1.0.8.2" />
   </ItemGroup>
+
   <ItemGroup>
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.1" />
   </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\Moncore.CrossCutting\Moncore.CrossCutting.csproj" />
     <ProjectReference Include="..\Moncore.Data\Moncore.Data.csproj" />
     <ProjectReference Include="..\Moncore.Domain\Moncore.Domain.csproj" />
   </ItemGroup>
+
 </Project>
