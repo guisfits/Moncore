@@ -11,6 +11,7 @@ using Moncore.Domain.Entities;
 using Moncore.Domain.Interfaces.Repositories;
 using Newtonsoft.Json;
 using Moncore.CrossCutting.Helpers;
+using Moncore.Domain.Helpers;
 
 namespace Moncore.Api.Controllers
 {
@@ -29,10 +30,9 @@ namespace Moncore.Api.Controllers
         }
 
         [HttpGet(Name = "GetUsers")]
-        public IActionResult Get(PaginationParameters parameters)
+        public IActionResult Get(UserParameters parameters)
         {
             var users = _repository.Pagination(parameters);
-
             string previousPage = users.HasPrevious
                 ? CreateResourceUri(parameters, ResourceUriType.PreviousPage)
                 : null;
@@ -149,6 +149,35 @@ namespace Moncore.Api.Controllers
                 _postRepository.Delete(post.Id);
 
             return NoContent();
+        }
+
+        private string CreateResourceUri(UserParameters parameters, ResourceUriType type)
+        {
+            var actionName = "GetUsers";
+            switch (type)
+            {
+                case ResourceUriType.NextPage:
+                    return _urlHelper.Link(actionName, new
+                    {
+                        email = parameters.Email,
+                        page = parameters.Page + 1,
+                        size = parameters.Size
+                    });
+                case ResourceUriType.PreviousPage:
+                    return _urlHelper.Link(actionName, new
+                    {
+                        email = parameters.Email,
+                        page = parameters.Page - 1,
+                        size = parameters.Size
+                    });
+                default:
+                    return _urlHelper.Link(actionName, new
+                    {
+                        email = parameters.Email,
+                        page = parameters.Page,
+                        size = parameters.Size
+                    });
+            }
         }
     }
 }

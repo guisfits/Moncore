@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Mvc.Routing;
 using Moncore.Domain.Entities;
 using Moncore.Domain.Interfaces.Repositories;
 using Moncore.Domain.Validations;
+using Moncore.Domain.Helpers;
 
 namespace Moncore.Api
 {
@@ -49,6 +50,7 @@ namespace Moncore.Api
             services.AddScoped<ApplicationContext>();
             services.AddScoped<IPostRepository, PostRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<PaginationParameters<User>, UserParameters>();
 
             services.AddScoped<IValidator<User>, UserValidator>();
             services.AddScoped<IValidator<Post>, PostValidator>();

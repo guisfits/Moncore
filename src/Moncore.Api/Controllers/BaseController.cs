@@ -2,6 +2,7 @@
 using Moncore.Api.Helpers;
 using Moncore.CrossCutting.Helpers;
 using Moncore.Domain.Entities;
+using Moncore.Domain.Helpers;
 
 namespace Moncore.Api.Controllers
 {
@@ -26,32 +27,6 @@ namespace Moncore.Api.Controllers
                 return false;
             }
             return true;
-        }
-
-        protected string CreateResourceUri(PaginationParameters parameters, ResourceUriType type)
-        {
-            var actionName = $"Get{typeof(TEntity).Name}s";
-            switch (type)
-            {
-                case ResourceUriType.NextPage:
-                    return _urlHelper.Link(actionName, new
-                    {
-                        page = parameters.Page + 1,
-                        size = parameters.Size
-                    });
-                case ResourceUriType.PreviousPage:
-                    return _urlHelper.Link(actionName, new
-                    {
-                        page = parameters.Page - 1,
-                        size = parameters.Size
-                    });
-                default:
-                    return _urlHelper.Link(actionName, new
-                    {
-                        page = parameters.Page,
-                        size = parameters.Size
-                    });
-            }
         }
     }
 }

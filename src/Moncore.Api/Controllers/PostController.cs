@@ -8,6 +8,7 @@ using Moncore.Api.Helpers;
 using Moncore.Api.Models;
 using Moncore.CrossCutting.Helpers;
 using Moncore.Domain.Entities;
+using Moncore.Domain.Helpers;
 using Moncore.Domain.Interfaces.Repositories;
 using Newtonsoft.Json;
 
@@ -28,7 +29,7 @@ namespace Moncore.Api.Controllers
 
         [HttpGet]
         [Route("api/posts", Name = "GetPosts")]
-        public IActionResult Get(PaginationParameters parameters)
+        public IActionResult Get(PostParameters parameters)
         {
             var posts = _repository.Pagination(parameters);
 
@@ -59,7 +60,7 @@ namespace Moncore.Api.Controllers
 
         [HttpGet]
         [Route("api/users/{userId:guid}/posts", Name = "GetPostsByUser")]
-        public IActionResult Get(string userId, PaginationParameters parameters)
+        public IActionResult Get(string userId, PostParameters parameters)
         {
             var posts = _repository.Pagination(parameters, c => c.UserId == userId);
 
@@ -67,11 +68,11 @@ namespace Moncore.Api.Controllers
                 return NotFound();
 
             string previousPage = posts.HasPrevious
-                ? CreateResourceUriForPostByUserId(parameters, ResourceUriType.PreviousPage, userId)
+                ? CreateResourceUri(parameters, ResourceUriType.PreviousPage, userId)
                 : null;
 
             string nextPage = posts.HasNext
-                ? CreateResourceUriForPostByUserId(parameters, ResourceUriType.NextPage, userId)
+                ? CreateResourceUri(parameters, ResourceUriType.NextPage, userId)
                 : null;
 
             var paginationMetadata = new
@@ -218,7 +219,7 @@ namespace Moncore.Api.Controllers
 
         #region Helpers
 
-        protected string CreateResourceUriForPostByUserId(PaginationParameters parameters, ResourceUriType type, string userId)
+        private string CreateResourceUri(PostParameters parameters, ResourceUriType type, string userId = null)
         {
             var actionName = "GetPostsByUser";
             switch (type)

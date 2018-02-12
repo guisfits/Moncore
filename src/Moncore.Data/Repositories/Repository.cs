@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Moncore.CrossCutting.Helpers;
 using Moncore.Data.Context;
 using Moncore.Domain.Entities;
+using Moncore.Domain.Helpers;
 using Moncore.Domain.Interfaces.Repositories;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -49,23 +50,17 @@ namespace Moncore.Data.Repositories
                 .ToListAsync();
         }
 
-        public PagedList<TEntity> Pagination(PaginationParameters parameters)
+        public virtual PagedList<TEntity> Pagination(PaginationParameters<TEntity> parameters, 
+                                                     Expression<Func<TEntity, bool>> predicate = null)
         {
-            var result = document
-                .AsQueryable()
-                .OrderBy(c => c.Id);
+            IQueryable<TEntity> result = document.AsQueryable();
 
-            return PagedList<TEntity>.Create(result, parameters.Page, parameters.Size);
-        }
+            if(predicate != null)
+                result = result.Where(predicate);
+            
+            var newResult = result.OrderBy(c => c.Id);
 
-        public PagedList<TEntity> Pagination(PaginationParameters parameters, Expression<Func<TEntity, bool>> predicate)
-        {
-            var result = document
-                .AsQueryable()
-                .Where(predicate)
-                .OrderBy(c => c.Id);
-
-            return PagedList<TEntity>.Create(result, parameters.Page, parameters.Size);
+            return PagedList<TEntity>.Create(newResult, parameters.Page, parameters.Size);
         }
 
         public virtual async Task Add(TEntity obj)

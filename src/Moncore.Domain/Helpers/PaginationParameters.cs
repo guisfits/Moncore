@@ -1,6 +1,8 @@
-﻿namespace Moncore.CrossCutting.Helpers
+using Moncore.Domain.Entities;
+
+namespace Moncore.Domain.Helpers
 {
-    public class PaginationParameters
+    public abstract class PaginationParameters<TEntity> where TEntity : Entity
     {
         private const int MaxPageSize = 20;
         public int Page { get; set; } = 1;
