@@ -1,22 +1,18 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
-
   <ItemGroup>
-    <PackageReference Include="MongoDB.Driver" Version="2.5.0" />
+    <PackageReference Include="MongoDB.Driver" Version="2.5.0"/>
+    <PackageReference Include="Microsoft.Extensions.Options" Version="2.0.0"/>
   </ItemGroup>
-
   <ItemGroup>
-    <ProjectReference Include="..\Moncore.CrossCutting\Moncore.CrossCutting.csproj" />
-    <ProjectReference Include="..\Moncore.Domain\Moncore.Domain.csproj" />
+    <ProjectReference Include="..\Moncore.CrossCutting\Moncore.CrossCutting.csproj"/>
+    <ProjectReference Include="..\Moncore.Domain\Moncore.Domain.csproj"/>
   </ItemGroup>
-
   <ItemGroup>
     <Reference Include="Microsoft.Extensions.Options">
       <HintPath>C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.extensions.options\2.0.0\lib\netstandard2.0\Microsoft.Extensions.Options.dll</HintPath>
     </Reference>
   </ItemGroup>
-
 </Project>
