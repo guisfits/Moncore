@@ -221,31 +221,76 @@ namespace Moncore.Api.Controllers
 
         private string CreateResourceUri(PostParameters parameters, ResourceUriType type, string userId = null)
         {
-            var actionName = "GetPostsByUser";
-            switch (type)
+            if(userId != null)
             {
-                case ResourceUriType.NextPage:
-                    return _urlHelper.Link(actionName, new
-                    {
-                        userId = userId,
-                        page = parameters.Page + 1,
-                        size = parameters.Size
-                    });
-                case ResourceUriType.PreviousPage:
-                    return _urlHelper.Link(actionName, new
-                    {
-                        userId = userId,
-                        page = parameters.Page - 1,
-                        size = parameters.Size
-                    });
-                default:
-                    return _urlHelper.Link(actionName, new
-                    {
-                        userId = userId,
-                        page = parameters.Page,
-                        size = parameters.Size
-                    });
+                switch (type)
+                {
+                    case ResourceUriType.NextPage:
+                        return _urlHelper.Link("GetPostsByUser", new
+                        {
+                            userId = userId,
+                            page = parameters.Page + 1,
+                            size = parameters.Size,
+                            search = parameters.Search,
+                            title = parameters.Title,
+                            body = parameters.Body
+                        });
+                    case ResourceUriType.PreviousPage:
+                        return _urlHelper.Link("GetPostsByUser", new
+                        {
+                            userId = userId,
+                            page = parameters.Page - 1,
+                            size = parameters.Size,
+                            search = parameters.Search,
+                            title = parameters.Title,
+                            body = parameters.Body
+                        });
+                    default:
+                        return _urlHelper.Link("GetPostsByUser", new
+                        {
+                            userId = userId,
+                            page = parameters.Page,
+                            size = parameters.Size,
+                            search = parameters.Search,
+                            title = parameters.Title,
+                            body = parameters.Body
+                        });
+                }
             }
+            else 
+            {
+               switch (type)
+                {
+                    case ResourceUriType.NextPage:
+                        return _urlHelper.Link("GetPosts", new
+                        {
+                            page = parameters.Page + 1,
+                            size = parameters.Size,
+                            search = parameters.Search,
+                            title = parameters.Title,
+                            body = parameters.Body
+                        });
+                    case ResourceUriType.PreviousPage:
+                        return _urlHelper.Link("GetPosts", new
+                        {
+                            page = parameters.Page - 1,
+                            size = parameters.Size,
+                            search = parameters.Search,
+                            title = parameters.Title,
+                            body = parameters.Body
+                        });
+                    default:
+                        return _urlHelper.Link("GetPosts", new
+                        {
+                            page = parameters.Page,
+                            size = parameters.Size,
+                            search = parameters.Search,
+                            title = parameters.Title,
+                            body = parameters.Body
+                        });
+                } 
+            }
+            
         }
 
         #endregion

@@ -159,23 +159,38 @@ namespace Moncore.Api.Controllers
                 case ResourceUriType.NextPage:
                     return _urlHelper.Link(actionName, new
                     {
-                        email = parameters.Email,
                         page = parameters.Page + 1,
-                        size = parameters.Size
+                        size = parameters.Size,
+                        search = parameters.Search,
+                        username = parameters.Username,
+                        name = parameters.Name,
+                        email = parameters.Email,
+                        phone = parameters.Phone,
+                        website = parameters.Website
                     });
                 case ResourceUriType.PreviousPage:
                     return _urlHelper.Link(actionName, new
                     {
-                        email = parameters.Email,
                         page = parameters.Page - 1,
-                        size = parameters.Size
+                        size = parameters.Size,
+                        search = parameters.Search,
+                        username = parameters.Username,
+                        name = parameters.Name,
+                        email = parameters.Email,
+                        phone = parameters.Phone,
+                        website = parameters.Website
                     });
                 default:
                     return _urlHelper.Link(actionName, new
                     {
-                        email = parameters.Email,
                         page = parameters.Page,
-                        size = parameters.Size
+                        size = parameters.Size,
+                        search = parameters.Search,
+                        username = parameters.Username,
+                        name = parameters.Name,
+                        email = parameters.Email,
+                        phone = parameters.Phone,
+                        website = parameters.Website
                     });
             }
         }
