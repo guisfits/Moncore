@@ -14,5 +14,6 @@ namespace Moncore.Domain.Helpers
         }
 
         public string Search { get; set; }
+        public string OrderBy { get; set; } = "Id";
     }
 }

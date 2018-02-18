@@ -57,8 +57,8 @@ namespace Moncore.Data.Repositories
 
             if(predicate != null)
                 result = result.Where(predicate);
-            
-            var newResult = result.OrderBy(c => c.Id);
+
+            var newResult = result.ApplySort(parameters.OrderBy, _mappingDictionary);
 
             return PagedList<TEntity>.Create(newResult, parameters.Page, parameters.Size);
         }

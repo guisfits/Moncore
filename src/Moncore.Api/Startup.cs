@@ -17,6 +17,8 @@ using Moncore.Domain.Entities;
 using Moncore.Domain.Interfaces.Repositories;
 using Moncore.Domain.Validations;
 using Moncore.Domain.Helpers;
+using Moncore.CrossCutting.Interfaces;
+using Moncore.Api.Services;
 
 namespace Moncore.Api
 {
@@ -61,6 +63,8 @@ namespace Moncore.Api
                 var actionContext = config.GetService<IActionContextAccessor>().ActionContext;
                 return new UrlHelper(actionContext);
             });
+
+            services.AddTransient<IPropertyMappingService, PropertyMappingService>();
 
             #endregion
         }
