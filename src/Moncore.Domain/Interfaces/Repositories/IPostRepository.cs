@@ -8,7 +8,7 @@ namespace Moncore.Domain.Interfaces.Repositories
 {
     public interface IPostRepository : IRepository<Post>
     {
-        PagedList<Post> Pagination(PostParameters parameters, Expression<Func<Post, bool>> predicate = null);
+        PagedList<Post> Pagination<T>(PostParameters parameters, Expression<Func<Post, bool>> predicate = null);
 
     }
 }

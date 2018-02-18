@@ -32,7 +32,7 @@ namespace Moncore.Api.Controllers
         [HttpGet(Name = "GetUsers")]
         public IActionResult Get(UserParameters parameters)
         {
-            var users = _repository.Pagination(parameters);
+            var users = _repository.Pagination<UserDto>(parameters);
             string previousPage = users.HasPrevious
                 ? CreateResourceUri(parameters, ResourceUriType.PreviousPage)
                 : null;
@@ -166,7 +166,8 @@ namespace Moncore.Api.Controllers
                         name = parameters.Name,
                         email = parameters.Email,
                         phone = parameters.Phone,
-                        website = parameters.Website
+                        website = parameters.Website,
+                        orderBy = parameters.OrderBy
                     });
                 case ResourceUriType.PreviousPage:
                     return _urlHelper.Link(actionName, new
@@ -178,7 +179,8 @@ namespace Moncore.Api.Controllers
                         name = parameters.Name,
                         email = parameters.Email,
                         phone = parameters.Phone,
-                        website = parameters.Website
+                        website = parameters.Website,
+                        orderBy = parameters.OrderBy
                     });
                 default:
                     return _urlHelper.Link(actionName, new
@@ -190,7 +192,8 @@ namespace Moncore.Api.Controllers
                         name = parameters.Name,
                         email = parameters.Email,
                         phone = parameters.Phone,
-                        website = parameters.Website
+                        website = parameters.Website,
+                        orderBy = parameters.OrderBy
                     });
             }
         }

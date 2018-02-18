@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using Moncore.CrossCutting.Extensions;
 using Moncore.CrossCutting.Helpers;
+using Moncore.CrossCutting.Interfaces;
 using Moncore.Data.Context;
 using Moncore.Domain.Entities;
 using Moncore.Domain.Helpers;
@@ -13,12 +15,12 @@ namespace Moncore.Data.Repositories
 {
     public class UserRepository : Repository<User>, IUserRepository
     {
-        public UserRepository(ApplicationContext context) 
-            : base(context)
+        public UserRepository(ApplicationContext context, IPropertyMappingService service) 
+            : base(context, service)
         {
         }
 
-        public PagedList<User> Pagination(UserParameters parameters, Expression<Func<User, bool>> predicate = null)
+        public PagedList<User> Pagination<T>(UserParameters parameters, Expression<Func<User, bool>> predicate = null)
         {
             IQueryable<User> result = document.AsQueryable();
 
@@ -27,7 +29,10 @@ namespace Moncore.Data.Repositories
 
             FilterAndSearchQuery(parameters, ref result);
 
-            result.OrderBy(c => c.Id);
+            if(parameters.OrderBy == "Id")
+                result.OrderBy(c => c.Id);
+            else
+                result = result.ApplySort(parameters.OrderBy, _propertyMappingService.GetPropertyMappings<User, T>());
 
             return PagedList<User>.Create(result, parameters.Page, parameters.Size);
         }

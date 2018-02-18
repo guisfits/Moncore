@@ -19,6 +19,7 @@ using Moncore.Domain.Validations;
 using Moncore.Domain.Helpers;
 using Moncore.CrossCutting.Interfaces;
 using Moncore.Api.Services;
+using Moncore.CrossCutting.Helpers;
 
 namespace Moncore.Api
 {

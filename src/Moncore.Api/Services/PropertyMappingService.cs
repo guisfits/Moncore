@@ -10,24 +10,45 @@ namespace Moncore.Api.Services
 {
     public class PropertyMappingService : IPropertyMappingService
     {
-        private IList<IPropertyMapping> _propertyMappings;
+        private readonly IList<IPropertyMapping> _propertyMappings = new List<IPropertyMapping>();
+
+        public PropertyMappingService()
+        {
+            this._propertyMappings.Add(new PropertyMapping<User, UserDto>(_userPropertyMapping));
+            this._propertyMappings.Add(new PropertyMapping<Post, PostDto>(_postPropertyMapping));
+            this._propertyMappings.Add(new PropertyMapping<Post, PostsByUserDto>(_postByUserPropertyMapping));
+        }
 
         #region EntitiesPropertyMappings
 
-        private Dictionary<string, PropertyMappingValue> _userPropertyMapping 
-            = new Dictionary<string, PropertyMappingValue>()
+        private Dictionary<string, PropertyMappingValue> _userPropertyMapping = new Dictionary<string, PropertyMappingValue>()
         {
-            {"Id", new PropertyMappingValue(new List<string>() {"Id"})},
-            {"Username", new PropertyMappingValue(new List<string>() {"Username"})},
-            {"Name", new PropertyMappingValue(new List<string>() {"Name"})},
-            {"Email", new PropertyMappingValue(new List<string>() {"Email"})},
-            {"Phone", new PropertyMappingValue(new List<string>() {"Phone"})},
-            {"Website", new PropertyMappingValue(new List<string>() {"Website"})}
+            {"id", new PropertyMappingValue(new List<string>() {"Id"})},
+            {"name", new PropertyMappingValue(new List<string>() {"Name"})},
+            {"username", new PropertyMappingValue(new List<string>() {"Username"})},
+            {"email", new PropertyMappingValue(new List<string>() {"Email"})},
+            {"phone", new PropertyMappingValue(new List<string>() {"Phone"})},
+            {"website", new PropertyMappingValue(new List<string>() {"Website"})}
+        };
+
+        private Dictionary<string, PropertyMappingValue> _postPropertyMapping = new Dictionary<string, PropertyMappingValue>()
+        {
+            {"id", new PropertyMappingValue(new List<string>() {"Id"})},
+            {"userId", new PropertyMappingValue(new List<string>() {"UserId"})},
+            {"title", new PropertyMappingValue(new List<string>() {"Title"})},
+            {"body", new PropertyMappingValue(new List<string>() {"Body"})},
+        };
+
+        private Dictionary<string, PropertyMappingValue> _postByUserPropertyMapping = new Dictionary<string, PropertyMappingValue>()
+        {
+            {"id", new PropertyMappingValue(new List<string>() {"Id"})},
+            {"title", new PropertyMappingValue(new List<string>() {"Title"})},
+            {"body", new PropertyMappingValue(new List<string>() {"Body"})},
         };
 
         #endregion
 
-        public Dictionary<string, PropertyMappingValue> GetPropertyMappings<TSource, TDestination> ()
+        public Dictionary<string, PropertyMappingValue> GetPropertyMappings<TSource, TDestination>()
         {
             var matchingMapping = _propertyMappings.OfType<PropertyMapping<TSource, TDestination>>();
 
@@ -36,11 +57,6 @@ namespace Moncore.Api.Services
                 return matchingMapping.First().MappingDictionary;
             }
             throw new ArgumentException($"Cannot find exact property mapping instance for <{typeof(TSource).Name}>, <{typeof(TDestination).Name}>");
-        }
-
-        public PropertyMappingService()
-        {
-            this._propertyMappings.Add(new PropertyMapping<UserDto, User>(_userPropertyMapping));
         }
     }
 }

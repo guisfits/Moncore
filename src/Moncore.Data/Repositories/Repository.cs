@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using Moncore.CrossCutting.Extensions;
 using Moncore.CrossCutting.Helpers;
+using Moncore.CrossCutting.Interfaces;
 using Moncore.Data.Context;
 using Moncore.Domain.Entities;
 using Moncore.Domain.Helpers;
@@ -15,10 +17,12 @@ namespace Moncore.Data.Repositories
 {
     public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity : Entity
     {
+        protected readonly IPropertyMappingService _propertyMappingService;
         protected readonly IMongoCollection<TEntity> document;
 
-        protected Repository(ApplicationContext context)
+        protected Repository(ApplicationContext context, IPropertyMappingService propertyMappingService)
         {
+            _propertyMappingService = propertyMappingService;
             document = context.MongoDb.GetCollection<TEntity>(typeof(TEntity).Name + "s");
         }
         public virtual async Task<TEntity> Get(string id)
@@ -50,17 +54,20 @@ namespace Moncore.Data.Repositories
                 .ToListAsync();
         }
 
-        public virtual PagedList<TEntity> Pagination(PaginationParameters<TEntity> parameters, 
-                                                     Expression<Func<TEntity, bool>> predicate = null)
+        public virtual PagedList<TEntity> Pagination<T>(PaginationParameters<TEntity> parameters, 
+                                                        Expression<Func<TEntity, bool>> predicate = null)
         {
             IQueryable<TEntity> result = document.AsQueryable();
 
             if(predicate != null)
                 result = result.Where(predicate);
 
-            var newResult = result.ApplySort(parameters.OrderBy, _mappingDictionary);
+            if (parameters.OrderBy == "Id")
+                result.OrderBy(c => c.Id);
+            else
+                result = result.ApplySort(parameters.OrderBy, _propertyMappingService.GetPropertyMappings<TEntity, T>());
 
-            return PagedList<TEntity>.Create(newResult, parameters.Page, parameters.Size);
+            return PagedList<TEntity>.Create(result, parameters.Page, parameters.Size);
         }
 
         public virtual async Task Add(TEntity obj)
