@@ -55,7 +55,7 @@ namespace Moncore.Api.Controllers
                 nextPageLink = nextPage
             };
 
-            Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(paginationMetadata));
+            Response.Headers.Add("X-PaginationResources", JsonConvert.SerializeObject(paginationMetadata));
             var vm = Mapper.Map<List<PostDto>>(posts);
             return Ok(vm);
         }
