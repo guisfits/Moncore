@@ -13,13 +13,14 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Routing;
+using Moncore.Api.Services;
 using Moncore.Domain.Entities;
 using Moncore.Domain.Interfaces.Repositories;
 using Moncore.Domain.Validations;
 using Moncore.Domain.Helpers;
 using Moncore.CrossCutting.Interfaces;
-using Moncore.Api.Services;
 using Moncore.CrossCutting.Helpers;
+using Moncore.Domain.Interfaces.Services;
 
 namespace Moncore.Api
 {
@@ -66,6 +67,7 @@ namespace Moncore.Api
             });
 
             services.AddTransient<IPropertyMappingService, PropertyMappingService>();
+            services.AddTransient<IEntityHelperServices, EntityHelperService>();
 
             #endregion
         }

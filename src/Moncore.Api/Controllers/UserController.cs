@@ -7,11 +7,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Moncore.Api.Filters;
 using Moncore.Api.Helpers;
+using Moncore.CrossCutting.Extensions;
 using Moncore.Domain.Entities;
 using Moncore.Domain.Interfaces.Repositories;
 using Newtonsoft.Json;
 using Moncore.CrossCutting.Helpers;
 using Moncore.Domain.Helpers;
+using Moncore.Domain.Interfaces.Services;
 
 namespace Moncore.Api.Controllers
 {
@@ -21,17 +23,22 @@ namespace Moncore.Api.Controllers
     {
         private readonly IUserRepository _repository;
         private readonly IPostRepository _postRepository;
+        private readonly IEntityHelperServices _entityHelperService;
 
-        public UserController(IUserRepository repository, IPostRepository postRepository, IUrlHelper urlHelper) 
+        public UserController(IUserRepository repository, IPostRepository postRepository, IUrlHelper urlHelper, IEntityHelperServices entityHelperService) 
             : base(urlHelper)
         {
             _repository = repository;
             _postRepository = postRepository;
+            _entityHelperService = entityHelperService;
         }
 
         [HttpGet(Name = "GetUsers")]
         public IActionResult Get(UserParameters parameters)
         {
+            if (!_entityHelperService.EntityHasProperties<User>(parameters.Fields))
+                return BadRequest();
+
             var users = _repository.Pagination<UserDto>(parameters);
             string previousPage = users.HasPrevious
                 ? CreateResourceUri(parameters, ResourceUriType.PreviousPage)
@@ -54,7 +61,7 @@ namespace Moncore.Api.Controllers
             };
 
             Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(paginationMetadata));
-            return Ok(result);
+            return Ok(result.ShapeData(parameters.Fields));
         }
 
         [HttpGet("{id:guid}")]
@@ -167,7 +174,8 @@ namespace Moncore.Api.Controllers
                         email = parameters.Email,
                         phone = parameters.Phone,
                         website = parameters.Website,
-                        orderBy = parameters.OrderBy
+                        orderBy = parameters.OrderBy,
+                        fields = parameters.Fields
                     });
                 case ResourceUriType.PreviousPage:
                     return _urlHelper.Link(actionName, new
@@ -180,7 +188,8 @@ namespace Moncore.Api.Controllers
                         email = parameters.Email,
                         phone = parameters.Phone,
                         website = parameters.Website,
-                        orderBy = parameters.OrderBy
+                        orderBy = parameters.OrderBy,
+                        fields = parameters.Fields
                     });
                 default:
                     return _urlHelper.Link(actionName, new
@@ -193,7 +202,8 @@ namespace Moncore.Api.Controllers
                         email = parameters.Email,
                         phone = parameters.Phone,
                         website = parameters.Website,
-                        orderBy = parameters.OrderBy
+                        orderBy = parameters.OrderBy,
+                        fields = parameters.Fields
                     });
             }
         }

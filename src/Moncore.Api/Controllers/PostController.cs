@@ -7,10 +7,12 @@ using Microsoft.AspNetCore.Mvc;
 using Moncore.Api.Filters;
 using Moncore.Api.Helpers;
 using Moncore.Api.Models;
+using Moncore.CrossCutting.Extensions;
 using Moncore.CrossCutting.Helpers;
 using Moncore.Domain.Entities;
 using Moncore.Domain.Helpers;
 using Moncore.Domain.Interfaces.Repositories;
+using Moncore.Domain.Interfaces.Services;
 using Newtonsoft.Json;
 
 namespace Moncore.Api.Controllers
@@ -20,18 +22,23 @@ namespace Moncore.Api.Controllers
     {
         private readonly IPostRepository _repository;
         private readonly IUserRepository _userRepository;
+        private readonly IEntityHelperServices _entityHelperServices;
 
-        public PostController(IPostRepository repository, IUserRepository userRepository, IUrlHelper urlHelper)
+        public PostController(IPostRepository repository, IUserRepository userRepository, IUrlHelper urlHelper, IEntityHelperServices _entityHelperServices)
             :base(urlHelper)
         {
             _repository = repository;
             _userRepository = userRepository;
+            _entityHelperServices = _entityHelperServices;
         }
 
         [HttpGet]
         [Route("api/posts", Name = "GetPosts")]
         public IActionResult Get(PostParameters parameters)
         {
+            if (!_entityHelperServices.EntityHasProperties<Post>(parameters.Fields))
+                return BadRequest();
+
             var posts = _repository.Pagination<PostDto>(parameters);
 
             if (posts == null)
@@ -57,7 +64,7 @@ namespace Moncore.Api.Controllers
 
             Response.Headers.Add("X-PaginationResources", JsonConvert.SerializeObject(paginationMetadata));
             var vm = Mapper.Map<List<PostDto>>(posts);
-            return Ok(vm);
+            return Ok(vm.ShapeData(parameters.Fields));
         }
 
         [HttpGet]
@@ -237,7 +244,8 @@ namespace Moncore.Api.Controllers
                             search = parameters.Search,
                             title = parameters.Title,
                             body = parameters.Body,
-                            orderBy = parameters.OrderBy
+                            orderBy = parameters.OrderBy,
+                            fields = parameters.Fields
                         });
                     case ResourceUriType.PreviousPage:
                         return _urlHelper.Link("GetPostsByUser", new
@@ -248,7 +256,8 @@ namespace Moncore.Api.Controllers
                             search = parameters.Search,
                             title = parameters.Title,
                             body = parameters.Body,
-                            orderBy = parameters.OrderBy
+                            orderBy = parameters.OrderBy,
+                            fields = parameters.Fields
                         });
                     default:
                         return _urlHelper.Link("GetPostsByUser", new
@@ -259,7 +268,8 @@ namespace Moncore.Api.Controllers
                             search = parameters.Search,
                             title = parameters.Title,
                             body = parameters.Body,
-                            orderBy = parameters.OrderBy
+                            orderBy = parameters.OrderBy,
+                            fields = parameters.Fields
                         });
                 }
             }
@@ -275,7 +285,8 @@ namespace Moncore.Api.Controllers
                             search = parameters.Search,
                             title = parameters.Title,
                             body = parameters.Body,
-                            orderBy = parameters.OrderBy
+                            orderBy = parameters.OrderBy,
+                            fields = parameters.Fields
                         });
                     case ResourceUriType.PreviousPage:
                         return _urlHelper.Link("GetPosts", new
@@ -285,7 +296,8 @@ namespace Moncore.Api.Controllers
                             search = parameters.Search,
                             title = parameters.Title,
                             body = parameters.Body,
-                            orderBy = parameters.OrderBy
+                            orderBy = parameters.OrderBy,
+                            fields = parameters.Fields
                         });
                     default:
                         return _urlHelper.Link("GetPosts", new
@@ -295,7 +307,8 @@ namespace Moncore.Api.Controllers
                             search = parameters.Search,
                             title = parameters.Title,
                             body = parameters.Body,
-                            orderBy = parameters.OrderBy
+                            orderBy = parameters.OrderBy,
+                            fields = parameters.Fields
                         });
                 } 
             }
