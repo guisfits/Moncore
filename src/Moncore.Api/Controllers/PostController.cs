@@ -96,22 +96,24 @@ namespace Moncore.Api.Controllers
 
             Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(paginationMetadata));
             var vm = Mapper.Map<List<PostsByUserDto>>(posts);
-            return Ok(vm);
+            return Ok(vm.ShapeData(parameters.Fields));
         }
 
         [HttpGet]
         [Route("api/posts/{id:guid}")]
         [Route("api/users/{userId:guid}/posts/{id:guid}")]
-        public async Task<IActionResult> Get(string userId, string id)
+        public async Task<IActionResult> Get(string userId, string id, [FromQuery] string fields)
         {
-            var postResult = !string.IsNullOrEmpty(userId) 
-                ? _repository.Get(c => c.UserId == userId && c.Id == id) 
-                : _repository.Get(id);
+            if (!_entityHelperServices.EntityHasProperties<Post>(fields))
+                return BadRequest();
 
-            if (postResult.Result == null)
-                return NotFound();
+            var post = !userId.IsNullEmptyOrWhiteSpace()
+                ? await _repository.Get(c => c.UserId == userId && c.Id == id) 
+                : await _repository.Get(id);
 
-            return Ok(await postResult);
+            return post == null 
+                   ? (IActionResult) NotFound()
+                   : Ok(post.ShapeData<Post>(fields));
         }
 
         [ValidateModelState]

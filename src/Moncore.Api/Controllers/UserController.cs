@@ -65,13 +65,16 @@ namespace Moncore.Api.Controllers
         }
 
         [HttpGet("{id:guid}")]
-        public async Task<IActionResult> Get(string id)
+        public async Task<IActionResult> Get(string id, [FromQuery] string fields)
         {
+            if (!_entityHelperService.EntityHasProperties<User>(fields))
+                return BadRequest();
+
             var user = await _repository.Get(id);
 
-            return user == null 
-                ? (IActionResult) NotFound() 
-                : Ok(user);
+            return user == null
+                ? (IActionResult) NotFound()
+                : Ok(user.ShapeData<User>(fields));
         }
 
         [ValidateModelState]
