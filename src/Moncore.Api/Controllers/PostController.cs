@@ -24,12 +24,12 @@ namespace Moncore.Api.Controllers
         private readonly IUserRepository _userRepository;
         private readonly IEntityHelperServices _entityHelperServices;
 
-        public PostController(IPostRepository repository, IUserRepository userRepository, IUrlHelper urlHelper, IEntityHelperServices _entityHelperServices)
+        public PostController(IPostRepository repository, IUserRepository userRepository, IUrlHelper urlHelper, IEntityHelperServices entityHelperServices)
             :base(urlHelper)
         {
             _repository = repository;
             _userRepository = userRepository;
-            _entityHelperServices = _entityHelperServices;
+            _entityHelperServices = entityHelperServices;
         }
 
         [HttpGet]

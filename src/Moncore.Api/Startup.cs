@@ -21,6 +21,7 @@ using Moncore.Domain.Helpers;
 using Moncore.CrossCutting.Interfaces;
 using Moncore.CrossCutting.Helpers;
 using Moncore.Domain.Interfaces.Services;
+using Newtonsoft.Json.Serialization;
 
 namespace Moncore.Api
 {
@@ -39,6 +40,10 @@ namespace Moncore.Api
             services.AddMvc(setup =>
             {
                 setup.ReturnHttpNotAcceptable = true;
+            })
+            .AddJsonOptions(options =>
+            {
+                options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
             })
             .AddFluentValidation();
 
