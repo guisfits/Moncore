@@ -6,6 +6,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Properties\PublishProfiles\FolderProfile.pubxml" />
+    <None Remove="Properties\PublishProfiles\Moncore - Web Deploy.pubxml" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AutoMapper" Version="6.2.2" />
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="3.2.0" />
     <PackageReference Include="FluentValidation.AspNetCore" Version="7.4.0" />
@@ -23,6 +28,10 @@
     <ProjectReference Include="..\Moncore.CrossCutting\Moncore.CrossCutting.csproj" />
     <ProjectReference Include="..\Moncore.Data\Moncore.Data.csproj" />
     <ProjectReference Include="..\Moncore.Domain\Moncore.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Properties\PublishProfiles\" />
   </ItemGroup>
 
 </Project>
