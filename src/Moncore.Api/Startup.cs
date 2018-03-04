@@ -22,6 +22,7 @@ using Moncore.CrossCutting.Interfaces;
 using Moncore.CrossCutting.Helpers;
 using Moncore.Domain.Interfaces.Services;
 using Newtonsoft.Json.Serialization;
+using Swashbuckle.AspNetCore.Swagger;
 
 namespace Moncore.Api
 {
@@ -46,6 +47,11 @@ namespace Moncore.Api
                 options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
             })
             .AddFluentValidation();
+
+            services.AddSwaggerGen(gen =>
+            {
+                gen.SwaggerDoc("v1", new Info {Title = "Moncore", Version = "v1", Contact = new Contact{Name = "Guilherme", Email = "guisfits@hotmail.com", Url = "github.com/guisfits/Moncore"}, Description = "RESTful API using ASP.NET Core and MongoDB"});
+            });
 
             MappingElements.Initialize();
             services.Configure<DbSettings>(config =>
@@ -97,6 +103,12 @@ namespace Moncore.Api
                     });
                 });
             }
+
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+            });
 
             app.UseMvc();
         }
