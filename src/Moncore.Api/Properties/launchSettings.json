@@ -11,7 +11,7 @@
     "Production - IIS Express": {
       "commandName": "IISExpress",
       "launchBrowser": true,
-      "launchUrl": "api/",
+      "launchUrl": "swagger",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Production"
       }
@@ -19,7 +19,7 @@
     "Development - Project": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "api/",
+      "launchUrl": "swagger",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
